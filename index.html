@@ -434,7 +434,9 @@
       printWindow.document.write('</body></html>');
       printWindow.document.close();
       printWindow.print();
-    }
+   const SUPABASE_URL = 'https://upkhbgcbeqztslqzknrz.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_UsrUlMQmmb7lmhqNlFQ6zQ_SPtFItqs';
+const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   </script>
 </body>
 </html>
