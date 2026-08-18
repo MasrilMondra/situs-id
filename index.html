@@ -182,7 +182,7 @@
   </div>
 
   <!-- ================= 3. HALAMAN LOGIN ADMIN ================= -->
- <div id="adminLoginPage" class="page">
+  <div id="adminLoginPage" class="page">
     <div class="admin-card">
       <h2 class="section-title" style="text-align: center;">Login Admin Only</h2>
       <div class="form-group">
@@ -284,6 +284,11 @@
   </div>
 
   <script>
+    // Inisialisasi Supabase di awal agar dapat diakses oleh semua fungsi
+    const SUPABASE_URL = 'https://upkhbgcbeqztslqzknrz.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_UsrUlMQmmb7lmhqNlFQ6zQ_SPtFItqs';
+    const dbSupabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
     function switchPage(pageId) {
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
       document.getElementById(pageId).classList.add('active');
@@ -328,29 +333,29 @@
       let imageUrl = 'https://images.unsplash.com/photo-1486006920555-c77dce18193c?w=300';
 
       try {
-        // 1. Upload Gambar ke Supabase Storage (product-images)
+        // 1. Upload Gambar ke Supabase Storage (product-images) menggunakan dbSupabase
         if (fileInput.files && fileInput.files[0]) {
           const file = fileInput.files[0];
           const fileExt = file.name.split('.').pop();
           const fileName = `${Date.now()}.${fileExt}`;
           const filePath = `${fileName}`;
 
-          const { data: uploadData, error: uploadError } = await supabase.storage
+          const { data: uploadData, error: uploadError } = await dbSupabase.storage
             .from('product-images')
             .upload(filePath, file);
 
           if (uploadError) throw uploadError;
 
           // Ambil Public URL gambar
-          const { data: publicUrlData } = supabase.storage
+          const { data: publicUrlData } = dbSupabase.storage
             .from('product-images')
             .getPublicUrl(filePath);
 
           imageUrl = publicUrlData.publicUrl;
         }
 
-        // 2. Simpan Data ke Tabel 'products' Supabase
-        const { data, error } = await supabase
+        // 2. Simpan Data ke Tabel 'products' Supabase menggunakan dbSupabase
+        const { data, error } = await dbSupabase
           .from('products')
           .insert([
             {
@@ -457,14 +462,9 @@
       printWindow.print();
     }
 
-    // Inisialisasi Supabase
-    const SUPABASE_URL = 'https://upkhbgcbeqztslqzknrz.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_UsrUlMQmmb7lmhqNlFQ6zQ_SPtFItqs';
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
     async function fetchProducts() {
       try {
-        const { data, error } = await supabase
+        const { data, error } = await dbSupabase
           .from('products')
           .select('*')
           .order('created_at', { ascending: false });
