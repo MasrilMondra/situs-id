@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Situs.id - Aplikasi Online Shop</title>
+  <!-- Load Supabase JS Client Library -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
       --primary: #38bdf8;
@@ -185,12 +187,10 @@
       <h2 class="section-title" style="text-align: center;">Login Admin Only</h2>
       <div class="form-group">
         <label>Email Admin</label>
-        <!-- Placeholder diubah menjadi petunjuk umum -->
         <input type="email" id="adminEmail" placeholder="Masukkan email admin">
       </div>
       <div class="form-group">
         <label>Password</label>
-        <!-- Placeholder diubah menjadi titik-titik rahasia -->
         <input type="password" id="adminPassword" placeholder="••••••••">
       </div>
       <button class="btn-submit" onclick="loginAdmin()">Masuk Dashboard</button>
@@ -236,7 +236,7 @@
         <textarea id="pDesc" rows="3" placeholder="Deskripsi lengkap produk..."></textarea>
       </div>
       <button class="btn-submit" onclick="uploadProduct()">Simpan & Upload Produk</button>
-      <div class="success-msg" id="successMsg">✅ Sukses diupload ke halaman pengunjung!</div>
+      <div class="success-msg" id="successMsg">✅ Sukses diupload ke database Supabase!</div>
     </div>
 
     <div class="admin-dashboard">
@@ -312,12 +312,12 @@
       }
     }
 
-    // Produk & Upload Admin
+    // Produk & Upload ke Supabase
     let products = [
       { name: 'Oli Mesin Premium', pricePcs: 75000, priceDus: 850000, stock: 45, desc: 'Oli kualitas tinggi untuk performa mesin optimal, tahan hingga 10.000 KM.', img: 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=300' }
     ];
 
-    function uploadProduct() {
+    async function uploadProduct() {
       const name = document.getElementById('pName').value;
       const pricePcs = document.getElementById('pPricePcs').value;
       const priceDus = document.getElementById('pPriceDus').value;
@@ -330,25 +330,64 @@
         return;
       }
 
-      let imgSrc = 'https://images.unsplash.com/photo-1486006920555-c77dce18193c?w=300';
-      if (fileInput.files && fileInput.files[0]) {
-        imgSrc = URL.createObjectURL(fileInput.files[0]);
+      let imageUrl = 'https://images.unsplash.com/photo-1486006920555-c77dce18193c?w=300';
+
+      try {
+        // 1. Upload Gambar ke Supabase Storage (product-images)
+        if (fileInput.files && fileInput.files[0]) {
+          const file = fileInput.files[0];
+          const fileExt = file.name.split('.').pop();
+          const fileName = `${Date.now()}.${fileExt}`;
+          const filePath = `${fileName}`;
+
+          const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('product-images')
+            .upload(filePath, file);
+
+          if (uploadError) throw uploadError;
+
+          // Ambil Public URL gambar
+          const { data: publicUrlData } = supabase.storage
+            .from('product-images')
+            .getPublicUrl(filePath);
+
+          imageUrl = publicUrlData.publicUrl;
+        }
+
+        // 2. Simpan Data ke Tabel 'products' Supabase
+        const { data, error } = await supabase
+          .from('products')
+          .insert([
+            {
+              name: name,
+              price_pcs: Number(pricePcs),
+              price_dus: Number(priceDus),
+              stock: Number(stock),
+              description: desc,
+              image_url: imageUrl
+            }
+          ]);
+
+        if (error) throw error;
+
+        const msg = document.getElementById('successMsg');
+        msg.style.display = 'block';
+        setTimeout(() => msg.style.display = 'none', 3000);
+
+        // Reset form
+        document.getElementById('pName').value = '';
+        document.getElementById('pPricePcs').value = '';
+        document.getElementById('pPriceDus').value = '';
+        document.getElementById('pStock').value = '';
+        document.getElementById('pDesc').value = '';
+        document.getElementById('pImageFile').value = '';
+
+        alert('Produk berhasil disimpan ke Database Supabase!');
+
+      } catch (error) {
+        console.error('Error saat menyimpan produk:', error.message);
+        alert('Gagal menyimpan produk: ' + error.message);
       }
-
-      products.push({ name, pricePcs: Number(pricePcs), priceDus: Number(priceDus), stock: Number(stock), desc, img: imgSrc });
-      renderCatalog();
-
-      const msg = document.getElementById('successMsg');
-      msg.style.display = 'block';
-      setTimeout(() => msg.style.display = 'none', 3000);
-
-      // Reset form
-      document.getElementById('pName').value = '';
-      document.getElementById('pPricePcs').value = '';
-      document.getElementById('pPriceDus').value = '';
-      document.getElementById('pStock').value = '';
-      document.getElementById('pDesc').value = '';
-      document.getElementById('pImageFile').value = '';
     }
 
     function renderCatalog() {
@@ -434,9 +473,48 @@
       printWindow.document.write('</body></html>');
       printWindow.document.close();
       printWindow.print();
-   const SUPABASE_URL = 'https://upkhbgcbeqztslqzknrz.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_UsrUlMQmmb7lmhqNlFQ6zQ_SPtFItqs';
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
+
+    // Inisialisasi Supabase
+    const SUPABASE_URL = 'https://upkhbgcbeqztslqzknrz.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_UsrUlMQmmb7lmhqNlFQ6zQ_SPtFItqs';
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    async function fetchProducts() {
+      try {
+        const { data, error } = await supabase
+          .from('products')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        if (data && data.length > 0) {
+          const grid = document.getElementById('dynamicProductGrid');
+          grid.innerHTML = '';
+
+          data.forEach(p => {
+            const imgSrc = p.image_url || 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=300';
+            
+            grid.innerHTML += `
+              <div class="product-card">
+                <img src="${imgSrc}" alt="${p.name}" class="product-img" onclick="openModal('${p.name}', '${p.description || ''}')">
+                <div class="product-name">${p.name}</div>
+                <div class="product-price">Rp ${Number(p.price_pcs).toLocaleString()} / Pcs <br><small>Rp ${Number(p.price_dus || 0).toLocaleString()} / Dus</small></div>
+                <div class="product-stock">Stok: ${p.stock} Pcs</div>
+                <button class="btn-action" onclick="addToCart('${p.name}', ${p.price_pcs})">Masukkan Keranjang</button>
+              </div>
+            `;
+          });
+        }
+      } catch (error) {
+        console.error('Gagal memuat produk:', error.message);
+      }
+    }
+
+    // Jalankan saat halaman dimuat
+    window.onload = function() {
+      fetchProducts();
+    };
   </script>
 </body>
 </html>
