@@ -88,18 +88,58 @@
 
     /* --- HALAMAN PENGUNJUNG --- */
     .main-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 30px; }
-    @media(max-width: 768px) { .main-grid { grid-template-columns: 1fr; } }
-    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+    .main-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 30px; }
+    
+    /* Atur grid utama & produk untuk tampilan Desktop & HP */
+    .product-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 15px; }
+
+    @media(max-width: 768px) { 
+      .main-grid { grid-template-columns: 1fr; }
+      
+      /* Mengubah produk menjadi 3 kolom ke samping di HP */
+      .product-grid { 
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important; 
+        gap: 6px !important; 
+      }
+      .product-card { 
+        padding: 6px !important; 
+        border-radius: 8px !important; 
+      }
+      .product-img { 
+        height: 70px !important; 
+        border-radius: 4px !important; 
+      }
+      .product-name { 
+        font-size: 11px !important; 
+        margin: 4px 0 2px !important; 
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .product-price { 
+        font-size: 10px !important; 
+        margin-bottom: 2px !important; 
+      }
+      .product-price small {
+        font-size: 8px !important;
+      }
+      .product-stock { 
+        font-size: 9px !important; 
+        margin-bottom: 6px !important; 
+      }
+      .btn-action { 
+        padding: 4px 6px !important; 
+        font-size: 9px !important; 
+        border-radius: 12px !important; 
+        border-width: 1px !important; 
+      }
+    }
+
     .product-card { background: var(--card-bg); border-radius: 12px; padding: 15px; border: 1px solid #334155; text-align: center; }
     .product-img { width: 100%; height: 140px; object-fit: cover; border-radius: 8px; cursor: pointer; transition: 0.3s; }
     .product-name { font-size: 18px; font-weight: 600; margin: 10px 0 5px; }
     .product-price { color: var(--primary); font-size: 14px; margin-bottom: 5px; }
     .product-stock { color: var(--text-muted); font-size: 13px; margin-bottom: 10px; }
-    .btn-action { background: transparent; border: 2px solid var(--primary); color: var(--primary); padding: 8px 15px; border-radius: 25px; cursor: pointer; font-weight: 600; width: 100%; transition: 0.3s; }
-    .btn-action:hover { background: var(--primary); color: var(--bg); }
-    .checkout-section { background: var(--card-bg); padding: 20px; border-radius: 12px; border: 1px solid #334155; }
-    .cart-items { margin-bottom: 15px; max-height: 140px; overflow-y: auto; font-size: 14px; border-bottom: 1px solid #334155; padding-bottom: 10px; }
-    .estimation { font-size: 13px; color: #38bdf8; margin: 10px 0; font-style: italic; }
 
     /* --- HALAMAN ADMIN --- */
     .admin-card { background: var(--card-bg); max-width: 450px; margin: 0 auto; padding: 30px; border-radius: 12px; border: 1px solid #334155; }
@@ -440,7 +480,7 @@
             <div class="product-name">${p.name}</div>
             <div class="product-price">Rp ${Number(p.price_pcs).toLocaleString()} / Pcs <br><small>Rp ${Number(p.price_dus || 0).toLocaleString()} / Dus</small></div>
             <div class="product-stock">Stok: ${p.stock} Pcs</div>
-            <button class="btn-action" onclick="addToCart('${p.name}', ${p.price_pcs})">Masukkan Keranjang</button>
+            <button class="btn-action" onclick="addToCart(${p.id}, '${p.name}', ${p.price_pcs})">Masukkan Keranjang</button>
           </div>
         `;
       });
@@ -543,9 +583,20 @@
     }
 
     let cart = [];
-    function addToCart(name, price) {
-      cart.push({ name, price });
+    function addToCart(productId, name, price) {
+      const product = allProducts.find(p => p.id === productId);
+      
+      if (!product) return;
+
+      if (product.stock <= 0) {
+        alert('Maaf, stok produk ini sudah habis!');
+        return;
+      }
+
+      product.stock -= 1;
+      cart.push({ id: product.id, name, price });
       updateCartUI();
+      renderProducts(allProducts);
     }
 
     function updateCartUI() {
