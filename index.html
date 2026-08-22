@@ -329,6 +329,67 @@
       </div>
     </div>
 
+    <!-- Dashboard Review Transaksi & Omset -->
+    <div class="admin-dashboard">
+      <h2 class="section-title">📊 Review Pembelian & Omset</h2>
+      <div style="display: flex; gap: 10px; align-items: flex-end; margin-bottom: 15px;">
+        <div class="form-group" style="flex: 1; margin: 0;">
+          <label>Dari Tanggal</label>
+          <input type="date" id="startDate">
+        </div>
+        <div class="form-group" style="flex: 1; margin: 0;">
+          <label>Sampai Tanggal</label>
+          <input type="date" id="endDate">
+        </div>
+        <button class="btn-submit" style="width: auto; padding: 10px 20px; margin: 0;" onclick="filterReport()">Tampilkan</button>
+      </div>
+
+      <div class="admin-table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Tanggal</th>
+              <th>Nama Pelanggan / Bengkel</th>
+              <th>Detail Belanjaan</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="reportTableBody">
+            <tr>
+              <td>2026-06-07</td>
+              <td>Bengkel Jaya Motor</td>
+              <td>Oli Mesin Premium (1 Pcs) - Rp 75.000</td>
+              <td><button class="btn-action" style="padding: 4px 10px; font-size: 12px;" onclick="printReport('Bengkel Jaya Motor', 'Oli Mesin Premium (1 Pcs) - Rp 75.000')">Cetak</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+    <!-- Kelola & Edit Produk Admin -->
+    <div class="admin-dashboard">
+      <h2 class="section-title">🛠️ Kelola & Edit Katalog Produk</h2>
+      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;">Ubah nama, kategori, harga, atau stok langsung di tabel, lalu klik "Simpan" atau "Hapus".</p>
+      
+      <div class="admin-table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Nama Produk</th>
+              <th>Kategori</th>
+              <th>Harga Pcs</th>
+              <th>Stok</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="adminProductTableBody">
+            <!-- Data dimuat lewat script -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
   <!-- Modal Product Knowledge -->
   <div class="modal" id="productModal">
     <div class="modal-content">
