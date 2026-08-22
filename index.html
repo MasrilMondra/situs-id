@@ -267,6 +267,7 @@
       <a class="btn-back" onclick="switchPage('homePage')" style="margin: 0; color: #ef4444;">Logout</a>
     </header>
 
+    <!-- Form Tambah Produk -->
     <div class="admin-dashboard">
       <h2 class="section-title">📦 Input / Tambah Produk Baru</h2>
       <div class="form-group">
@@ -305,8 +306,11 @@
       <div class="success-msg" id="successMsg">✅ Sukses diupload ke database Supabase!</div>
     </div>
 
+    <!-- Kelola & Edit Produk Admin -->
     <div class="admin-dashboard">
       <h2 class="section-title">🛠️ Kelola & Edit Katalog Produk</h2>
+      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;">Ubah nama, kategori, harga, atau stok langsung di tabel, lalu klik "Simpan" atau "Hapus".</p>
+      
       <div class="admin-table-container">
         <table>
           <thead>
@@ -318,11 +322,12 @@
               <th>Aksi</th>
             </tr>
           </thead>
-          <tbody id="adminProductTableBody"></tbody>
+          <tbody id="adminProductTableBody">
+            <!-- Data dimuat lewat script -->
+          </tbody>
         </table>
       </div>
     </div>
-  </div>
 
   <!-- Modal Product Knowledge -->
   <div class="modal" id="productModal">
