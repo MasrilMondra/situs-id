@@ -88,15 +88,10 @@
 
     /* --- HALAMAN PENGUNJUNG --- */
     .main-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 30px; }
-    .main-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 30px; }
-    
-    /* Atur grid utama & produk untuk tampilan Desktop & HP */
     .product-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 15px; }
 
     @media(max-width: 768px) { 
       .main-grid { grid-template-columns: 1fr; }
-      
-      /* Mengubah produk menjadi 3 kolom ke samping di HP */
       .product-grid { 
         grid-template-columns: repeat(3, minmax(0, 1fr)) !important; 
         gap: 6px !important; 
@@ -120,9 +115,7 @@
         font-size: 10px !important; 
         margin-bottom: 2px !important; 
       }
-      .product-price small {
-        font-size: 8px !important;
-      }
+      .product-price small { font-size: 8px !important; }
       .product-stock { 
         font-size: 9px !important; 
         margin-bottom: 6px !important; 
@@ -146,10 +139,16 @@
     .admin-dashboard { background: var(--card-bg); padding: 25px; border-radius: 12px; border: 1px solid #334155; margin-bottom: 20px; }
     .success-msg { color: #22c55e; font-size: 13px; margin-top: 5px; display: none; font-weight: bold; }
     .admin-table-container { overflow-x: auto; margin-top: 15px; }
-    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 500px; }
     th, td { border: 1px solid #334155; padding: 8px; text-align: left; }
     th { background: #0f172a; color: var(--primary); }
-    .admin-input-edit { width: 100%; padding: 5px; background: #0f172a; border: 1px solid #475569; color: white; border-radius: 4px; font-size: 12px; }
+    .admin-input-edit { width: 100%; padding: 6px; background: #0f172a; border: 1px solid #475569; color: white; border-radius: 4px; font-size: 12px; }
+    
+    /* Tombol Aksi Admin yang Dipercantik */
+    .btn-admin-save { background: #22c55e; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; transition: 0.2s; }
+    .btn-admin-save:hover { background: #16a34a; }
+    .btn-admin-del { background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; transition: 0.2s; }
+    .btn-admin-del:hover { background: #dc2626; }
 
     /* Modal Product Knowledge */
     .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 100; }
@@ -191,9 +190,7 @@
           <button class="btn-action" style="width: auto; padding: 6px 15px;" onclick="filterCategory('Food')">Food</button>
         </div>
 
-        <div class="product-grid" id="dynamicProductGrid">
-          <!-- Produk dimuat otomatis via Supabase -->
-        </div>
+        <div class="product-grid" id="dynamicProductGrid"></div>
       </div>
 
       <div class="checkout-section">
@@ -216,9 +213,7 @@
           <input type="text" id="buyerAddress" placeholder="Nama jalan, nomor, kota">
         </div>
 
-        <div class="estimation">
-          📦 Estimasi pengiriman: Max. 3 hari sejak transaksi.
-        </div>
+        <div class="estimation">📦 Estimasi pengiriman: Max. 3 hari sejak transaksi.</div>
 
         <div class="form-group">
           <label>Metode Pembayaran</label>
@@ -306,10 +301,10 @@
       <div class="success-msg" id="successMsg">✅ Sukses diupload ke database Supabase!</div>
     </div>
 
-    <!-- Kelola & Edit Produk Admin -->
+    <!-- Kelola & Edit Produk Admin (Tersusun rapi dengan Button) -->
     <div class="admin-dashboard">
       <h2 class="section-title">🛠️ Kelola & Edit Katalog Produk</h2>
-      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;">Ubah nama, kategori, harga, atau stok langsung di tabel, lalu klik "Simpan" atau "Hapus".</p>
+      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;">Ubah nama, kategori, harga, atau stok langsung di tabel, lalu klik tombol Simpan atau Hapus.</p>
       
       <div class="admin-table-container">
         <table>
@@ -319,12 +314,10 @@
               <th>Kategori</th>
               <th>Harga Pcs</th>
               <th>Stok</th>
-              <th>Aksi</th>
+              <th style="text-align: center;">Aksi</th>
             </tr>
           </thead>
-          <tbody id="adminProductTableBody">
-            <!-- Data dimuat lewat script -->
-          </tbody>
+          <tbody id="adminProductTableBody"></tbody>
         </table>
       </div>
     </div>
@@ -351,7 +344,7 @@
               <th>Tanggal</th>
               <th>Nama Pelanggan / Bengkel</th>
               <th>Detail Belanjaan</th>
-              <th>Aksi</th>
+              <th style="text-align: center;">Aksi</th>
             </tr>
           </thead>
           <tbody id="reportTableBody">
@@ -359,36 +352,13 @@
               <td>2026-06-07</td>
               <td>Bengkel Jaya Motor</td>
               <td>Oli Mesin Premium (1 Pcs) - Rp 75.000</td>
-              <td><button class="btn-action" style="padding: 4px 10px; font-size: 12px;" onclick="printReport('Bengkel Jaya Motor', 'Oli Mesin Premium (1 Pcs) - Rp 75.000')">Cetak</button></td>
+              <td style="text-align: center;"><button class="btn-admin-save" style="padding: 4px 10px;" onclick="printReport('Bengkel Jaya Motor', 'Oli Mesin Premium (1 Pcs) - Rp 75.000')">Cetak</button></td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
   </div>
-
-    <!-- Kelola & Edit Produk Admin -->
-    <div class="admin-dashboard">
-      <h2 class="section-title">🛠️ Kelola & Edit Katalog Produk</h2>
-      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;">Ubah nama, kategori, harga, atau stok langsung di tabel, lalu klik "Simpan" atau "Hapus".</p>
-      
-      <div class="admin-table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>Nama Produk</th>
-              <th>Kategori</th>
-              <th>Harga Pcs</th>
-              <th>Stok</th>
-              <th>Aksi</th>
-            </tr>
-          </thead>
-          <tbody id="adminProductTableBody">
-            <!-- Data dimuat lewat script -->
-          </tbody>
-        </table>
-      </div>
-    </div>
 
   <!-- Modal Product Knowledge -->
   <div class="modal" id="productModal">
@@ -399,7 +369,7 @@
     </div>
   </div>
 
-  <!-- ================= SCRIPT JAVASCRIPT LENGKAP ================= -->
+  <!-- ================= SCRIPT JAVASCRIPT ================= -->
   <script>
     const SUPABASE_URL = 'https://upkhbgcbeqztslqzknrz.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_UsrUlMQmmb7lmhqNlFQ6zQ_SPtFItqs';
@@ -581,9 +551,11 @@
               </td>
               <td><input type="number" id="edit-price-${p.id}" value="${p.price_pcs}" class="admin-input-edit"></td>
               <td><input type="number" id="edit-stock-${p.id}" value="${p.stock}" class="admin-input-edit"></td>
-              <td>
-                <button onclick="updateProduct(${p.id})" style="background: #22c55e; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; margin-bottom: 3px; width: 100%;">Simpan</button>
-                <button onclick="deleteProduct(${p.id})" style="background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; width: 100%;">Hapus</button>
+              <td style="text-align: center;">
+                <div style="display: flex; gap: 6px; justify-content: center;">
+                  <button class="btn-admin-save" onclick="updateProduct(${p.id})">Simpan</button>
+                  <button class="btn-admin-del" onclick="deleteProduct(${p.id})">Hapus</button>
+                </div>
               </td>
             </tr>
           `;
@@ -710,6 +682,22 @@
       let message = `Halo CS Situs.id, saya ingin memesan:%0A${orderSummary}%0A%0A*Data Penerima:*%0ANama: ${name}%0ANo. HP: ${phone}%0AAlamat: ${address}%0AMetode Pembayaran: ${payment}%0A%0ASaya akan mengirimkan bukti transfer ke nomor ini. Terima kasih!`;
 
       window.open(`https://wa.me/6289694221399?text=${message}`, '_blank');
+    }
+
+    function filterReport() {
+      alert('Menampilkan data sesuai periode tanggal yang dipilih.');
+    }
+
+    function printReport(customer, details) {
+      let printWindow = window.open('', '', 'height=500,width=800');
+      printWindow.document.write('<html><head><title>Cetak Nota Pembelian</title></head><body style="font-family: Arial; padding: 20px;">');
+      printWindow.document.write('<h2>Situs.id - Bukti Belanja Pelanggan</h2>');
+      printWindow.document.write(`<hr><p><strong>Nama Pelanggan / Bengkel:</strong> ${customer}</p>`);
+      printWindow.document.write(`<p><strong>Detail Belanjaan:</strong> ${details}</p>`);
+      printWindow.document.write('<p>Status: <strong>LUNAS / Diproses</strong></p>');
+      printWindow.document.write('</body></html>');
+      printWindow.document.close();
+      printWindow.print();
     }
 
     window.onload = function() {
